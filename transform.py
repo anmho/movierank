@@ -156,7 +156,7 @@ def write_movies_sql(movies_df: pd.DataFrame):
         except ValueError as e:
             print(e, id, title, year)
 
-    with open("./db/temp/movies.sql", "w") as f:
+    with open("db/sql/2-movies.sql", "w") as f:
         f.writelines(stmts)
 
 
@@ -168,7 +168,7 @@ def write_genres_sql(genres_df: pd.DataFrame):
         stmt = f"INSERT INTO genres (id, name) VALUES ({id}, '{name}');\n"
         stmts.append(stmt)
 
-    with open("./db/temp/genres.sql", "w") as f:
+    with open("db/sql/3-genres.sql", "w") as f:
         f.writelines(stmts)
 
 
@@ -181,8 +181,9 @@ def write_genres_in_movies_sql(genres_in_movies_df: pd.DataFrame):
 
         stmts.append(stmt)
 
-    with open("./db/temp/genres_in_movies.sql", "w") as f:
+    with open("db/sql/4-genres_in_movies.sql", "w") as f:
         f.writelines(stmts)
+
 
 def write_links_sql(links_df: pd.DataFrame):
     stmts = []
@@ -193,19 +194,98 @@ def write_links_sql(links_df: pd.DataFrame):
 
         stmts.append(stmt)
 
-    with open("./db/temp/links.sql", "w") as f:
+    with open("db/sql/6-links.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_user_tags_sql(user_tags_df: pd.DataFrame):
+    stmts = []
+    for id, data in user_tags_df.iterrows():
+        user_id, movie_id, tag_id, timestamp = data
+
+        stmt = f"INSERT INTO user_tags (user_id, movie_id, tag_id, tagged_at) VALUES ({user_id}, {movie_id}, {tag_id}, '{timestamp}');\n"
+
+        stmts.append(stmt)
+
+    with open("db/sql/9-user_tags.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_tags_sql(tags_df: pd.DataFrame):
+    stmts = []
+    for id, data in tags_df.iterrows():
+        tag_id, tag = data
+        stmt = f"INSERT INTO tags (id, tag) VALUES ({tag_id}, {tag});\n"
+        stmts.append(stmt)
+
+    with open("db/sql/7-tags.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_movie_tag_relevance_sql(movie_tag_relevance_df: pd.DataFrame):
+    stmts = []
+    print(movie_tag_relevance_df.head(10))
+    for id, data in movie_tag_relevance_df.iterrows():
+        movie_id, tag_id, relevance = data
+        movie_id = int(movie_id)
+        tag_id = int(tag_id)
+        stmt = f"INSERT INTO movie_tag_relevance (movie_id, tag_id, relevance) VALUES ({movie_id}, {tag_id}, {relevance});\n"
+        print(stmt)
+        # if len(stmts) % 1000 == 0:
+        #     print("processed records", len(stmts))
+        stmts.append(stmt)
+
+    with open("db/sql/8-movie_tag_relevance.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_ratings_sql(ratings_df: pd.DataFrame):
+
+    stmts = []
+    i = 0
+    for id, data in ratings_df.iterrows():
+        user_id, movie_id, rating, timestamp = data
+        stmt = f"INSERT INTO ratings (user_id, movie_id, rating, rated_at) VALUES ({user_id}, {movie_id}, {rating}, '{timestamp}');\n"
+
+        stmts.append(stmt)
+        if i % 100_000 == 0:
+            print(i, stmt)
+
+        i += 1
+
+    with open("db/sql/5-ratings.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_users_sql(users_df: pd.DataFrame):
+    stmts = []
+    for id, data in users_df.iterrows():
+        user_id = data[0]
+        stmt = f"INSERT INTO users (id) VALUES ({user_id});\n"
+        print(stmt)
+
+        stmts.append(stmt)
+
+    with open("db/sql/1-users.sql", "w") as f:
         f.writelines(stmts)
 
 
 movies_df, genres_in_movies_df, genres_df = transform_movies()
 
-write_movies_sql(movies_df)
-write_genres_sql(genres_df)
-write_genres_in_movies_sql(genres_in_movies_df)
+# write_movies_sql(movies_df)
+# write_genres_sql(genres_df)
+# write_genres_in_movies_sql(genres_in_movies_df)
 
 
 
 links_df = transform_links()
-write_links_sql(links_df)
-# user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
-# ratings_df, users_df = transform_ratings()
+# write_links_sql(links_df)
+user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
+# write_tags_sql(tags_df)
+# write_movie_tag_relevance_sql(movie_tag_relevance_df)
+# write_user_tags_sql(user_tags_df)
+
+ratings_df, users_df = transform_ratings()
+
+write_ratings_sql(ratings_df)
+# write_users_sql(users_df)

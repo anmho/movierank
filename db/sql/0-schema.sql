@@ -16,18 +16,20 @@ CREATE TABLE users (
 
 CREATE TABLE genres_in_movies (
     movie_id serial REFERENCES movies(id),
-    genre_id serial REFERENCES genres(id)
+    genre_id serial REFERENCES genres(id),
+    PRIMARY KEY (movie_id, genre_id)
 );
 
 CREATE TABLE ratings (
     user_id serial REFERENCES users(id),
     movie_id serial REFERENCES movies(id),
     rating float NOT NULL,
-    rated_at timestamp NOT NULL
+    rated_at timestamp NOT NULL,
+    PRIMARY KEY (user_id, movie_id)
 );
 
 CREATE TABLE links (
-    movie_id serial REFERENCES movies(id),
+    movie_id serial PRIMARY KEY REFERENCES movies(id),
     imdb_id text,
     tmdb_id text
 );
@@ -48,6 +50,7 @@ CREATE TABLE user_tags (
 CREATE TABLE movie_tag_relevance (
     movie_id serial REFERENCES movies(id),
     tag_id serial REFERENCES  tags(id),
-    relevance float
+    relevance float,
+    PRIMARY KEY (movie_id, tag_id)
 );
 

@@ -3,4 +3,19 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.10 (movierank)" />
   </component>
+  <component name="excludedPrintfFunctions.xml">
+    <option name="excludedDescriptors">
+      <set>
+        <PrintfFuncDescriptorState>
+          <option name="importPath" value="fmt" />
+          <option name="name" value="Sprintf" />
+        </PrintfFuncDescriptorState>
+      </set>
+    </option>
+    <option name="excludedNames">
+      <set>
+        <option value="Sprintf" />
+      </set>
+    </option>
+  </component>
 </project>

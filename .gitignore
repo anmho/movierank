@@ -3,3 +3,5 @@
 
 /data/**
 /db/temp/**
+/db/sql/**
+!/db/sql/0-schema.sql
