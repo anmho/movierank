@@ -1,5 +1,4 @@
-package movierank
+package main
 
 func main() {
-
 }
