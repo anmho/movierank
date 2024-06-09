@@ -2,7 +2,11 @@ package parse
 
 import (
 	"encoding/csv"
+	"fmt"
+	"io"
+	"log"
 	"os"
+	"strconv"
 )
 
 func ratingsToSQL() {
