@@ -185,7 +185,16 @@ def write_genres_in_movies_sql(genres_in_movies_df: pd.DataFrame):
         f.writelines(stmts)
 
 def write_links_sql(links_df: pd.DataFrame):
-    pass
+    stmts = []
+    for id, data in links_df.iterrows():
+        movie_id, imdb_id, tmdb_id = data
+
+        stmt = f"INSERT INTO links (movie_id, imdb_id, tmdb_id) VALUES ({movie_id}, '{imdb_id}', '{tmdb_id}');\n"
+
+        stmts.append(stmt)
+
+    with open("./db/temp/links.sql", "w") as f:
+        f.writelines(stmts)
 
 
 movies_df, genres_in_movies_df, genres_df = transform_movies()
@@ -195,6 +204,8 @@ write_genres_sql(genres_df)
 write_genres_in_movies_sql(genres_in_movies_df)
 
 
+
 links_df = transform_links()
+write_links_sql(links_df)
 # user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
 # ratings_df, users_df = transform_ratings()
