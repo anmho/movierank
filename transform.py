@@ -60,9 +60,7 @@ def transform_movies() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
             if genres[0] == "(no genres listed)":
                 genres = []
 
-            title = title.replace("'", "''")
-            # movie_stmt = f"-- INSERT INTO movies (id, title, year) VALUES ({movieId}, '{title}', {year});\n"
-            movies_rows.append({"id": id, "title": title, "year": year})
+            movies_rows.append({"id": movieId, "title": title, "year": year})
 
             for genre in genres:
                 if genre not in genre_map:
@@ -75,7 +73,7 @@ def transform_movies() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
             i += 1
 
-    movies_df = pd.DataFrame(movies_rows)
+    movies_df = pd.DataFrame(movies_rows).rename(columns={"id": "movie_id"})
     genres_in_movies_df = pd.DataFrame(genres_in_movies_rows)
     genres_df = pd.DataFrame(genres_rows)
     print("movies", movies_df.columns)
@@ -139,10 +137,36 @@ def transform_tags():
     return user_tags_df, tags_df, movie_tag_relevance_df
 
 
+def write_movies_sql(movies_df: pd.DataFrame):
+    stmts = []
+    for row_id, data in movies_df.iterrows():
+        id, title, year = data
+        try:
+            if pd.isnull(year):
+                year = "NULL"
+            else:
+                year = int(year)
+            # print(id, title, int(year))
 
+            title = title.replace("'", "''")
 
+            stmt = f"INSERT INTO movies (id, title, year) VALUES ({id}, '{title}', {year});\n"
+            stmts.append(stmt)
+
+        except ValueError as e:
+            print(e, id, title, year)
+
+    with open("./db/temp/movies.sql", "w") as f:
+        f.writelines(stmts)
+
+def write_genres_in_movies_sql(genres_in_movies_df):
+    pass
 
 movies_df, genres_in_movies_df, genres_rows_df = transform_movies()
-links_df = transform_links()
-user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
-ratings_df, users_df = transform_ratings()
+
+write_movies_sql(movies_df)
+
+
+# links_df = transform_links()
+# user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
+# ratings_df, users_df = transform_ratings()

@@ -1,1 +1,5 @@
 package movierank
+
+func main() {
+
+}
