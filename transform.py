@@ -65,9 +65,9 @@ def transform_movies() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
             for genre in genres:
                 if genre not in genre_map:
                     # genre_sql.write(f"INSERT INTO genres (name) VALUES ({genre});\n")
-                    genres_rows.append({"name": genre})
                     genre_map[genre] = len(genre_map) + 1
 
+                    genres_rows.append({"id": genre_map[genre], "name": genre})
                 genre_id = genre_map[genre]
                 genres_in_movies_rows.append({"movie_id": movieId, "genre_id": genre_id})
 
@@ -77,7 +77,7 @@ def transform_movies() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     genres_in_movies_df = pd.DataFrame(genres_in_movies_rows)
     genres_df = pd.DataFrame(genres_rows)
     print("movies", movies_df.columns)
-    print("genres_in_movies", movies_df.columns)
+    print("genres_in_movies", genres_in_movies_df.columns)
     print("genres", genres_df.columns)
     return movies_df, genres_in_movies_df, genres_df
 
@@ -159,14 +159,42 @@ def write_movies_sql(movies_df: pd.DataFrame):
     with open("./db/temp/movies.sql", "w") as f:
         f.writelines(stmts)
 
-def write_genres_in_movies_sql(genres_in_movies_df):
+
+def write_genres_sql(genres_df: pd.DataFrame):
+    stmts = []
+    for row_id, data in genres_df.iterrows():
+        id, name = data
+
+        stmt = f"INSERT INTO genres (id, name) VALUES ({id}, '{name}');\n"
+        stmts.append(stmt)
+
+    with open("./db/temp/genres.sql", "w") as f:
+        f.writelines(stmts)
+
+
+def write_genres_in_movies_sql(genres_in_movies_df: pd.DataFrame):
+    stmts = []
+    for row_id, data in genres_in_movies_df.iterrows():
+        movie_id, genre_id = data
+
+        stmt = f"INSERT INTO genres_in_movies (movie_id, genre_id) VALUES ({movie_id}, {genre_id});\n"
+
+        stmts.append(stmt)
+
+    with open("./db/temp/genres_in_movies.sql", "w") as f:
+        f.writelines(stmts)
+
+def write_links_sql(links_df: pd.DataFrame):
     pass
 
-movies_df, genres_in_movies_df, genres_rows_df = transform_movies()
+
+movies_df, genres_in_movies_df, genres_df = transform_movies()
 
 write_movies_sql(movies_df)
+write_genres_sql(genres_df)
+write_genres_in_movies_sql(genres_in_movies_df)
 
 
-# links_df = transform_links()
+links_df = transform_links()
 # user_tags_df, tags_df, movie_tag_relevance_df = transform_tags()
 # ratings_df, users_df = transform_ratings()
